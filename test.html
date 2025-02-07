@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="tag-container">
+        <input type="text" id="tag-input" placeholder="Add a tag" />
+        <button onclick="addTag()">Add Tag</button>
+        <div id="tags-list"></div>
+        <input type="" id="hidden-tags" name="tags">
+        <div id="hidden-tags-display"></div> <!-- Display the hidden tags here -->
+        <button onclick="submitForm()">Submit</button> <!-- Submit button -->
+      </div>
+      
+<script>
+let tags = [];
+
+function addTag() {
+  const tagInput = document.getElementById('tag-input');
+  const tagValue = tagInput.value.trim();
+
+  if (tagValue && !tags.includes(tagValue)) {
+    tags.push(tagValue);
+
+    // Create tag element
+    let tagElement = document.createElement('div');
+    tagElement.className = 'tag';
+    tagElement.innerHTML = `${tagValue} <button onclick="removeTag(this, '${tagValue}')">x</button>`;
+
+    // Append tag to the list
+    document.getElementById('tags-list').appendChild(tagElement);
+
+    // Update hidden input
+    updateHiddenInput();
+    tagInput.value = '';
+  }
+}
+
+function removeTag(button, tag) {
+  // Remove tag from array
+  tags = tags.filter(t => t !== tag);
+
+  // Remove tag element from DOM
+  button.parentElement.remove();
+
+  // Update hidden input
+  updateHiddenInput();
+}
+
+function updateHiddenInput() {
+  document.getElementById('hidden-tags').value = JSON.stringify(tags);
+  document.getElementById('hidden-tags-display').innerText = 'Tags Array: ' + JSON.stringify(tags);
+}
+function submitForm() {
+  addTag(); // Ensure the last tag is added before submitting
+  updateHiddenInput(); // Update the hidden input
+  console.log('Submitted Tags:', JSON.stringify(tags));
+}
+
+
+
+    </script>      
+</body>
+</html>
