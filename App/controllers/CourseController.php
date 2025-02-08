@@ -13,7 +13,7 @@
         return $this->model->getById($id);
     }
     
-     public abstract function afficher( $term = null, $page = 1, $perPage = 10);
+     public abstract function afficher();
 }
 
 

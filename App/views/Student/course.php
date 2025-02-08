@@ -24,150 +24,83 @@
     <div class="max-w-7xl mx-auto px-4 py-8">
       <!-- Search and Filters Section -->
       <div class="mb-8">
-        <!-- Search Bar (for medium and up) -->
         <div class="hidden md:flex flex-1 items-center justify-center px-6">
-          <form action="#" method="POST" class="w-full max-w-lg relative">
+        <form action="?route=course/vedios" method="POST" class="w-full max-w-lg relative">
             <input type="text" name="search_term" class="w-full dark-transition bg-gray-100 dark:bg-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white" placeholder="Search for courses..." />
             <button type="submit" class="absolute right-3 top-3 text-gray-400">
               <i class="fas fa-search"></i>
             </button>
           </form>
         </div>
-        <!-- Filter Buttons -->
-        <div class="flex flex-wrap gap-4 mt-4">
-          <button class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">All</button>
-          <button class="px-4 py-2 rounded-lg border dark:border-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Programming</button>
-          <button class="px-4 py-2 rounded-lg border dark:border-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Design</button>
-          <button class="px-4 py-2 rounded-lg border dark:border-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Business</button>
-          <button class="px-4 py-2 rounded-lg border dark:border-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">Marketing</button>
-        </div>
       </div>
-
-      <!-- Results Summary and View Toggle -->
-      <div class="flex justify-between items-center mb-6">
-        <p class="text-gray-600 dark:text-gray-300">
-          Showing <span class="font-semibold">1-9</span> of <span class="font-semibold">256</span> courses
-        </p>
-        <div class="flex items-center space-x-2">
-          <label class="text-gray-600 dark:text-gray-300">View:</label>
-          <button onclick="toggleView('video')" id="videoViewBtn" class="view-toggle-btn px-3 py-2 rounded-lg border dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active">
-            Video
-          </button>
-          <button onclick="toggleView('document')" id="documentViewBtn" class="view-toggle-btn px-3 py-2 rounded-lg border dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
-            Documents
-          </button>
-        </div>
-        <div class="flex items-center space-x-2">
-          <label class="text-gray-600 dark:text-gray-300">Sort by:</label>
-          <select class="bg-white dark:bg-gray-800 border dark:border-gray-700 rounded-lg px-3 py-2 text-gray-700 dark:text-gray-300">
-            <option>Most Popular</option>
-            <option>Newest First</option>
-            <option>Highest Rated</option>
-          </select>
-        </div>
+      <?php
+if (!isset($results) || empty($results)) {
+  echo "<p class='text-center text-gray-500'>No courses available.</p>";
+} else {
+  echo '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">';
+  foreach ($results as $course) {
+      ?>
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300 flex flex-col overflow-hidden">
+          <img src="<?= htmlspecialchars($course['thumbnail_path']); ?>" alt="Thumbnail" class="w-full h-40 object-cover">
+          <div class="p-4 flex-grow">
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-white truncate"><?= htmlspecialchars($course['video_title']); ?></h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400"><?= htmlspecialchars($course['teacher_last_name'] . " " . $course['teacher_first_name']); ?></p>
+              <span class="mt-2 inline-block bg-blue-600 text-white text-xs px-3 py-1 rounded-full"><?= htmlspecialchars($course['categorie']); ?></span>
+          </div>
+          <div class="flex items-center justify-between bg-gray-100 dark:bg-gray-700 px-4 py-3">
+              <div class="flex items-center space-x-2">
+                  <img src="<?= htmlspecialchars($course['avatar'] ?? 'default-avatar.png'); ?>" class="w-8 h-8 rounded-full">
+                  <span class="text-sm text-gray-700 dark:text-gray-300"><?= htmlspecialchars($course['teacher_first_name']); ?></span>
+              </div>
+              <a href="#" class="text-blue-500 text-sm font-medium hover:underline">View Course</a>
+          </div>
       </div>
+      <?php
+  }
+  echo '</div>';
+}
 
-      <!-- Video Grid (Default View) -->
-      <div id="courseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-    <!-- Sample Video Card 1 -->
-    <article class="course-card bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <div class="relative">
-            <!-- Thumbnail -->
-            <img src="<?php echo $result['thumbnail_path'] ?>" alt="Video Thumbnail" class="w-full h-40 object-cover">
-        </div>
-        <div class="p-3">
-            <!-- Title -->
-            <h3 class="text-md font-semibold mb-1 text-white truncate"><?php echo $result['title'] ?></h3>
-            <!-- Categories -->
-            <div class="flex flex-wrap gap-1 mb-1">
-                <span class="bg-blue-600 text-xs px-2 py-1 rounded"><?php echo $result['categorie'] ?></span>
-            </div>
-            <!-- Tags -->
-            <div class="flex flex-wrap gap-1 mb-2">
-             <?php foreach($result['tag'] as $tag): ?>
-                <span class="bg-green-600 text-xs px-2 py-1 rounded"><?php echo $tag ?></span>
-              <?php  endforeach;
-                ?>
-            </div>
-            <!-- Teacher Information -->
-            <div class="flex items-center mb-2">
-                <img src="https://via.placeholder.com/32" alt="Teacher Avatar" class="w-6 h-6 rounded-full mr-2">
-                <span class="text-xs text-gray-400 truncate"><?php echo $result['first_name']." ".$result['last_name'] ?></span>
-            </div>
-            <!-- Ratings -->
-            <div class="flex items-center mb-2">
-                <i class="fas fa-star text-yellow-400 text-xs"></i>
-                <span class="ml-1 text-xs text-gray-300">4.8</span>
-                <span class="mx-2 text-gray-400 text-xs">|</span>
-                <span class="text-xs text-gray-400">1250 students</span>
-            </div>
-            <!-- View Details Button -->
-            <div>
-                <a href="vedio.php" class="text-blue-400 text-xs hover:text-blue-300">Join Course →</a>
-            </div>
-        </div>
-    </article>
+?>
 
-    <!-- Sample Video Card 2 -->
-    <article class="course-card bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <div class="relative">
-            <img src="https://via.placeholder.com/640x360.png?text=Video+Thumbnail" alt="Video Thumbnail" class="w-full h-40 object-cover">
-            <span class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">00:10:00</span>
-        </div>
-        <div class="p-3">
-            <h3 class="text-md font-semibold mb-1 text-white truncate">Mastering Algebra</h3>
-            <div class="flex flex-wrap gap-1 mb-1">
-                <span class="bg-blue-600 text-xs px-2 py-1 rounded">Mathematics</span>
-            </div>
-            <div class="flex flex-wrap gap-1 mb-2">
-                <span class="bg-green-600 text-xs px-2 py-1 rounded">Algebra</span>
-            </div>
-            <div class="flex items-center mb-2">
-                <img src="https://via.placeholder.com/32" alt="Teacher Avatar" class="w-6 h-6 rounded-full mr-2">
-                <span class="text-xs text-gray-400 truncate">Alan Turing - Instructor</span>
-            </div>
-            <div class="flex items-center mb-2">
-                <i class="fas fa-star text-yellow-400 text-xs"></i>
-                <span class="ml-1 text-xs text-gray-300">4.5</span>
-                <span class="mx-2 text-gray-400 text-xs">|</span>
-                <span class="text-xs text-gray-400">980 students</span>
-            </div>
-            <div>
-                <a href="vedio.php" class="text-blue-400 text-xs hover:text-blue-300">Join Course →</a>
-            </div>
-        </div>
-    </article>
+<!-- Pagination -->
+<div class="mt-12 flex justify-center">
+    <nav class="flex items-center space-x-2">
+        <?php
+        // Pagination links
+        $currentRoute = $_GET['route'] ?? 'course/vedios';
+        $queryString = $term ? "&term=" . urlencode($term) : "";
 
-    <!-- Sample Video Card 3 -->
-    <article class="course-card bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <div class="relative">
-            <img src="https://via.placeholder.com/640x360.png?text=Video+Thumbnail" alt="Video Thumbnail" class="w-full h-40 object-cover">
-            <span class="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">00:12:45</span>
-        </div>
-        <div class="p-3">
-            <h3 class="text-md font-semibold mb-1 text-white truncate">Web Design for Beginners</h3>
-            <div class="flex flex-wrap gap-1 mb-1">
-                <span class="bg-blue-600 text-xs px-2 py-1 rounded">Design</span>
-            </div>
-            <div class="flex flex-wrap gap-1 mb-2">
-                <span class="bg-green-600 text-xs px-2 py-1 rounded">UI/UX</span>
-            </div>
-            <div class="flex items-center mb-2">
-                <img src="https://via.placeholder.com/32" alt="Teacher Avatar" class="w-6 h-6 rounded-full mr-2">
-                <span class="text-xs text-gray-400 truncate">Jesse Showalter - Designer</span>
-            </div>
-            <div class="flex items-center mb-2">
-                <i class="fas fa-star text-yellow-400 text-xs"></i>
-                <span class="ml-1 text-xs text-gray-300">4.7</span>
-                <span class="mx-2 text-gray-400 text-xs">|</span>
-                <span class="text-xs text-gray-400">1120 students</span>
-            </div>
-            <div>
-                <a href="vedio.php" class="text-blue-400 text-xs hover:text-blue-300">Join Course →</a>
-            </div>
-        </div>
-    </article>
+        // Previous page button
+        if ($page > 1) {
+            echo '<a href="?route=' . $currentRoute . '&page=' . ($page - 1) . $queryString . '" class="p-2 rounded-lg border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-200"><i class="fas fa-chevron-left"></i> Previous</a>';
+        } else {
+            echo '<span class="p-2 rounded-lg border text-gray-500 dark:text-gray-400 opacity-50 cursor-not-allowed"><i class="fas fa-chevron-left"></i> Previous</span>';
+        }
+
+        // Page numbers
+        for ($i = 1; $i <= $totalPages; $i++) {
+            if ($i == $page) {
+                echo '<span class="px-4 py-2 rounded-lg bg-blue-600 text-white">' . $i . '</span>';
+            } else {
+                echo '<a href="?route=' . $currentRoute . '&page=' . $i . $queryString . '" class="px-4 py-2 rounded-lg border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-200">' . $i . '</a>';
+            }
+        }
+
+        // Next page button
+        if ($page < $totalPages) {
+            echo '<a href="?route=' . $currentRoute . '&page=' . ($page + 1) . $queryString . '" class="p-2 rounded-lg border text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition duration-200">Next <i class="fas fa-chevron-right"></i></a>';
+        } else {
+            echo '<span class="p-2 rounded-lg border text-gray-500 dark:text-gray-400 opacity-50 cursor-not-allowed">Next <i class="fas fa-chevron-right"></i></span>';
+        }
+        ?>
+    </nav>
 </div>
+
+<!-- عرض عدد النتائج -->
+<div class="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">
+    Showing page <?= $page; ?> of <?= $totalPages; ?> (<?= $totalResults; ?> total courses)
+</div>
+
       <!-- Document Grid (Initially Hidden) -->
       <div id="documentsContent" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4 pb-8">
         <!-- Alternative Document Card 1 -->
@@ -234,25 +167,7 @@
         <!-- Add more document cards as needed -->
       </div>
 
-      <!-- Pagination (Static Example) -->
-      <div class="mt-12 flex justify-center">
-        <nav class="flex items-center space-x-2">
-          <a href="#"
-             class="p-2 rounded-lg border dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 opacity-50 cursor-not-allowed">
-            <i class="fas fa-chevron-left"></i>
-          </a>
-          <a href="#" class="px-4 py-2 rounded-lg bg-blue-600 text-white">1</a>
-          <a href="#" class="px-4 py-2 rounded-lg border dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">2</a>
-          <a href="#" class="px-4 py-2 rounded-lg border dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">3</a>
-          <a href="#"
-             class="p-2 rounded-lg border dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
-            <i class="fas fa-chevron-right"></i>
-          </a>
-        </nav>
-      </div>
-      <div class="text-center mt-4 text-sm text-gray-600 dark:text-gray-400">
-        Showing page 1 of 3 (256 total videos)
-      </div>
+
     </div>
   </div>
 
@@ -305,6 +220,78 @@
           this.closest('form').submit();
         }
       });
+    });
+//     document.addEventListener('DOMContentLoaded', function() {
+//     fetchVideos();
+// });
+
+// function fetchCourses() {
+//     fetch('http://localhost/youdemy%20with%20mvc/public/?route=course/vedios', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/x-www-form-urlencoded'
+//         },
+//         body: 'page=1&perPage=10'  // You can dynamically set these parameters if needed
+//     })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error('Network response was not ok');
+//         }
+//         return response.json();
+//     })
+//     .then(responseData => {
+//         // This assumes the responseData has a 'data' array and possibly pagination info
+//         displayCourses(responseData.data);
+//     })
+//     .catch(error => {
+//         console.error('Error fetching courses:', error);
+//     });
+// }
+
+function displayCourses(courses) {
+    const courseGrid = document.getElementById('courseGrid');  // Your grid container
+    courseGrid.innerHTML = '';  // Clear any existing courses
+
+    // Loop through the courses and generate HTML for each
+    courses.forEach(course => {
+        const videoCard = `
+            <article class="course-card bg-gray-800 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div class="relative">
+                    <img src="http://localhost/youdemy/public/views/Uploads/${course.thumbnail_path.split('\\').pop()}" alt="Video Thumbnail" class="w-full h-40 object-cover">
+                </div>
+                <div class="p-3">
+                    <h3 class="text-md font-semibold mb-1 text-white truncate">${course.video_title}</h3>
+                    <div class="flex flex-wrap gap-1 mb-1">
+                        <span class="bg-blue-600 text-xs px-2 py-1 rounded">${course.categorie}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1 mb-2">
+                        ${course.tags ? course.tags.split(',').map(tag => `<span class="bg-green-600 text-xs px-2 py-1 rounded">${tag}</span>`).join(' ') : ''}
+                    </div>
+                    <div class="flex items-center mb-2">
+                        <img src="https://via.placeholder.com/32" alt="Teacher Avatar" class="w-6 h-6 rounded-full mr-2">
+                        <span class="text-xs text-gray-400 truncate">${course.teacher_first_name} ${course.teacher_last_name}</span>
+                    </div>
+                    <div>
+                        <a href="video.php?id=${course.video_id}" class="text-blue-400 text-xs hover:text-blue-300">Join Course →</a>
+                    </div>
+                </div>
+            </article>
+        `;
+        courseGrid.innerHTML += videoCard;
+    });
+}
+
+// Call the function when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search_term"]');
+        const searchForm = searchInput.closest('form');
+
+        searchInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent the default form submission
+                searchForm.submit(); // Submit the form
+            }
+        });
     });
   </script>
 </body>

@@ -46,32 +46,70 @@ class VideoModel extends CourseModel {
             return false;
         }
     }
-    public function affichers($term = null, $page = 1, $perPage = 10) {
-        // if (!$this->pdo) {
-        //     echo "PDO connection is not available.";
-        
-        // }
+public function afficher($term = null, $page = 1, $perPage = 10) {
+    $offset = max(0, ($page - 1) * $perPage); // Ensure OFFSET is not negative
 
-        $offset = ($page - 1) * $perPage;
-        echo $this->table;
-        if ($term) {
-            $query = "SELECT * FROM videos v WHERE title LIKE :term OR description LIKE :term LIMIT :limit OFFSET :offset inner join videos_tag vt  on v.id= vt.vedio_id  ";
-            
-            $stmt = $this->pdo->prepare($query);
-            $term = "%$term%";
-            $stmt->bindParam(':term', $term);
-            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        } else {
-            $query = "SELECT * FROM videos LIMIT :limit OFFSET :offset";
-            $stmt = $this->pdo->prepare($query);
-            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        }
+    $query = "
+        SELECT 
+            v.id AS video_id,
+            v.title AS video_title,
+            v.thumbnail_path,
+            c.name AS categorie,
+            STRING_AGG(DISTINCT t.name, ', ') AS tags,  -- Ensure this matches your database
+            u.first_name AS teacher_first_name,
+            u.last_name AS teacher_last_name,
+            u.avatar AS avatar
+        FROM videos v
+        LEFT JOIN video_tags vt ON v.id = vt.video_id
+        LEFT JOIN tags t ON vt.tag_id = t.id
+        LEFT JOIN users u ON v.teacher_id = u.id
+        LEFT JOIN categories c ON v.categorie_id = c.id
+    ";
 
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if ($term) {
+        $query .= " WHERE v.title LIKE :term OR t.name LIKE :term"; // Change t.name to t.tag_name if needed
     }
+
+    $query .= " 
+        GROUP BY v.id, v.title, v.thumbnail_path, c.name, u.avatar, u.first_name, u.last_name
+        ORDER BY v.id DESC
+        LIMIT :limit OFFSET :offset
+    ";
+
+    $stmt = $this->pdo->prepare($query);
+
+    if ($term) {
+        $termParam = "%$term%";
+        $stmt->bindValue(':term', $termParam, PDO::PARAM_STR);
+    }
+
+    $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+    
+public function countResults($term = null) {
+    $query = "SELECT COUNT(DISTINCT v.id) AS total FROM videos v 
+              LEFT JOIN video_tags vt ON v.id = vt.video_id
+              LEFT JOIN tags t ON vt.tag_id = t.id";
+    
+    if ($term) {
+        $query .= " WHERE v.title LIKE :term OR v.description LIKE :term"; // Ensure 'description' is spelled correctly
+    }
+    
+    $stmt = $this->pdo->prepare($query);
+    
+    if ($term) {
+        $termParam = "%$term%";
+        $stmt->bindParam(':term', $termParam, PDO::PARAM_STR); // Specify the parameter type
+    }
+    
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC)['total'];
+}
+    
     public function getAll() {
         $query = "SELECT * FROM videos";
         $stmt = $this->pdo->query($query);

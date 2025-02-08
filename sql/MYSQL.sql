@@ -64,19 +64,8 @@ CREATE TABLE IF NOT EXISTS document_tags (
     UNIQUE (document_id, tag_id)
 );
 
-CREATE TABLE IF NOT EXISTS video_categories (
-    id SERIAL PRIMARY KEY,
-    video_id INT NOT NULL REFERENCES videos(id) ,
-    category_id INT NOT NULL REFERENCES categories(id) ,
-    UNIQUE (video_id, category_id)
-);
 
-CREATE TABLE IF NOT EXISTS document_categories (
-    id SERIAL PRIMARY KEY,
-    document_id INT NOT NULL REFERENCES documents(id),
-    category_id INT NOT NULL REFERENCES categories(id) ,
-    UNIQUE (document_id, category_id)
-);
+
 
 CREATE TABLE IF NOT EXISTS video_enrollments (
     id SERIAL PRIMARY KEY,

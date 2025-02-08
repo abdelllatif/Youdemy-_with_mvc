@@ -88,16 +88,36 @@ else{
         exit;
     }
 }
-    public function afficher( $term = null, $page = 1, $perPage = 10) {
-        $term = $_POST['term'] ?? null;
-        $results = $this->model->affichers( $term, $page, $perPage);
-        return $results;
-        foreach($results as $result){
-        require_once(__DIR__ . '/../views/Student/course.php');
-        }
+public function afficher() {
+    // Get 'page' and 'term' from the query parameters, with default values
+    $page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+    $term = isset($_POST['search_term']) ? trim($_POST['search_term']) : null;
+    $perPage = 10; // Define number of results per page
+
+    // Calculate total results and pages
+    $totalResults = $this->model->countResults($term);
+    $totalPages = ceil($totalResults / $perPage);
+
+    // Calculate the offset for pagination
+    $offset = ($page - 1) * $perPage;
+
+    // Fetch results
+    $results = $this->model->afficher($term, $page, $perPage);
+
+    if (!$results) {
+        echo "No results found.";
+        exit();
     }
+
+    // Pass data to the view
+    require_once(__DIR__ . '/../views/Student/course.php');
+}
+
+
+
+
     private function uploadFile($file) {
-        $targetDirectory = __DIR__ . '/../views/Uploads/';
+        $targetDirectory =  '../App/views/Uploads/';
         if (!is_dir($targetDirectory)) {
             mkdir($targetDirectory, 0755, true);
         }
@@ -108,4 +128,6 @@ else{
         return false;
     }
    
+
+    
 }
